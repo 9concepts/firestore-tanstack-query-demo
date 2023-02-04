@@ -2,10 +2,27 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from '@next/font/google'
 import styles from '@/styles/Home.module.css'
+import { collection, getFirestore, onSnapshot, query } from 'firebase/firestore'
+import { useEffect, useState } from 'react'
+import { Book } from '@/models/book'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
+  const db = getFirestore()
+  const q = query(collection(db, 'books'))
+  const [books, setBooks] = useState<Book[]>([]);
+  useEffect(() => {
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setBooks(snapshot.docs.map(doc => Book.parse({
+        id: doc.id, ...doc.data()
+      })))
+
+      console.log('in onSnapshot callback')
+    });
+    return unsubscribe
+  }, [])
+
   return (
     <>
       <Head>
@@ -15,30 +32,9 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <div className={styles.description}>
-          <p>
-            Get started by editing&nbsp;
-            <code className={styles.code}>src/pages/index.tsx</code>
-          </p>
-          <div>
-            <a
-              href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              By{' '}
-              <Image
-                src="/vercel.svg"
-                alt="Vercel Logo"
-                className={styles.vercelLogo}
-                width={100}
-                height={24}
-                priority
-              />
-            </a>
-          </div>
+        <div>
+          {books.map((book) => <div key={book.id}>{book.title} ¥{book.price}</div>)}
         </div>
-
         <div className={styles.center}>
           <Image
             className={styles.logo}
