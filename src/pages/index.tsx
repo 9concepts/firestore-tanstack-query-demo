@@ -2,26 +2,17 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from '@next/font/google'
 import styles from '@/styles/Home.module.css'
-import { collection, getFirestore, onSnapshot, query } from 'firebase/firestore'
-import { useEffect, useState } from 'react'
+import { collection, getFirestore, query } from 'firebase/firestore'
 import { Book } from '@/models/book'
+import { useFirestoreQueryData } from '@/hooks/use-firestore-query-data'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
-  const db = getFirestore()
-  const q = query(collection(db, 'books'))
-  const [books, setBooks] = useState<Book[]>([]);
-  useEffect(() => {
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setBooks(snapshot.docs.map(doc => Book.parse({
-        id: doc.id, ...doc.data()
-      })))
-
-      console.log('in onSnapshot callback')
-    });
-    return unsubscribe
-  }, [])
+  const q = query(collection(getFirestore(), 'books'))
+  const { data } = useFirestoreQueryData(["books"], q, { idField: 'id' })
+  if (!data) return <div>Loading...</div>
+  const books = data.map(doc => Book.parse(doc));
 
   return (
     <>
