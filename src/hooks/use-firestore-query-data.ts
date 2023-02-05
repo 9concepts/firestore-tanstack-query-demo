@@ -1,5 +1,8 @@
 import { QueryKey, useQuery, useQueryClient, UseQueryResult } from "@tanstack/react-query";
-import { DocumentData, FirestoreError, onSnapshot, Query } from "firebase/firestore";
+import { DocumentData, FirestoreError, onSnapshot, Query, Unsubscribe } from "firebase/firestore";
+import { useEffect } from "react";
+
+const unsubscribes: Unsubscribe[] = []
 
 type WithIdField<D, F = void> = F extends string
   ? D & { [key in F]: string }
@@ -23,7 +26,7 @@ export function useFirestoreQueryData<ID extends string, Doc = DocumentData, Res
   const queryFn = () => {
     return new Promise<Doc[]>((resolve, reject) => {
       try {
-        const _unsubscribe = onSnapshot(query, (snapshot => {
+        const unsubscribe = onSnapshot(query, (snapshot => {
           const docs = snapshot.docs.map(doc => {
             let data = doc.data()
             if (options?.idField) {
@@ -40,11 +43,20 @@ export function useFirestoreQueryData<ID extends string, Doc = DocumentData, Res
           queryClient.setQueryData(queryKey, docs)
           resolve(docs)
         }))
+
+        unsubscribes.push(unsubscribe)
       } catch (error) {
         reject(error)
       }
     })
   }
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', (_event) => {
+      console.log("in beforeunload callback")
+      unsubscribes.forEach(unsubscribe => unsubscribe())
+    });
+  }, [])
 
   return useQuery({
     queryKey,
