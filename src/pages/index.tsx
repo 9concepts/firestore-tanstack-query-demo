@@ -5,13 +5,14 @@ import styles from '@/styles/Home.module.css'
 import { collection, getFirestore, query } from 'firebase/firestore'
 import { Book } from '@/models/book'
 import { useFirestoreQueryData } from '@/hooks/use-firestore-query-data'
+import Link from 'next/link'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
   const q = query(collection(getFirestore(), 'books'))
   const { data } = useFirestoreQueryData(["books"], q, { idField: 'id' })
-  if (!data) return <div>Loading...</div>
+  if (!data) return (<div>Loading...</div>)
   const books = data.map(doc => Book.parse(doc));
 
   return (
@@ -25,6 +26,9 @@ export default function Home() {
       <main className={styles.main}>
         <div>
           {books.map((book) => <div key={book.id}>{book.title} ¥{book.price}</div>)}
+        </div>
+        <div>
+          <Link href={"/v13"}>Next.js v13 app dir demo</Link>
         </div>
         <div className={styles.center}>
           <Image
