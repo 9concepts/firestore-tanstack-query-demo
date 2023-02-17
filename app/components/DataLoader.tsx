@@ -1,6 +1,7 @@
 'use client'
 
 import { useFirestoreQueryData } from "@/hooks/use-firestore-query-data"
+import { useFirestoreQueryDataSuspense } from "@/hooks/use-firestore-query-data-suspense"
 import { createFirebaseClientApp } from "@/lib/firebase"
 import { collection, getFirestore, query } from "firebase/firestore"
 import { Suspense } from "react"
@@ -27,12 +28,13 @@ export const DataLoader = () => {
   createFirebaseClientApp()
 
   const q = query(collection(getFirestore(), 'books'))
-  const { data: books } = useFirestoreQueryData(["books"], q, { idField: 'id' })
+  // const { data: books } = useFirestoreQueryData(["books"], q, { idField: 'id' })
 
-  if (!books) return <div>Old Loading...</div>
+  // if (!books) return <div>Old Loading...</div>
+  const { data: books } = useFirestoreQueryDataSuspense(["books-rsc"], q, { idField: 'id' })
 
   return (
     <Suspense fallback={<div>Suspense Loading...</div>}>
-      {books.map((book) => <div key={book.id}>{book.title} ¥{book.price}</div>)}
+      {books && books.map((book) => <div key={book.id}>{book.title} ¥{book.price}</div>)}
     </Suspense>)
 }
