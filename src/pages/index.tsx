@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { OriginalSuspenseHookDemo } from '@/components/OriginalSuspenseHookDemo'
 import { QueryHookDemo } from '@/components/QueryHookDemo'
 import { QuerySuspenseHookDemo } from '@/components/QuerySuspenseHookDemo'
+import { HookDemo } from '@/components/HookDemo'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -21,6 +22,8 @@ export default function Home() {
         <div>
           <Link href={"/v13"}>Next.js v13 app dir demo</Link>
         </div>
+        <HookDemo />
+        {/* <HookDemo /> */}
         <QueryHookDemo />
         {/* <QuerySuspenseHookDemo /> */}
         {/* <OriginalSuspenseHookDemo /> */}
